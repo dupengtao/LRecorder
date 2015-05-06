@@ -1,6 +1,5 @@
 package com.l.recorder.presenter;
 
-import android.content.Context;
 import android.os.Bundle;
 import com.l.recorder.ui.IRecorderView;
 
@@ -14,7 +13,7 @@ public interface IRecordPresenter {
 
     void onViewDestroy();
 
-    void onTakeView(Context context,IRecorderView view,int sign);
+    void onTakeView(IRecorderView view,int sign);
 
     //void onViewSave(Bundle state);
     //

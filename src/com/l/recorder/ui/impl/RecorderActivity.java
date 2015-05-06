@@ -1,16 +1,23 @@
 package com.l.recorder.ui.impl;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.View;
 import android.widget.TextView;
 import com.l.recorder.R;
-import com.l.recorder.presenter.impl.RecordPresenter;
+import com.l.recorder.model.impl.LRecorderService;
+import com.l.recorder.presenter.impl.RecorderPresenter;
 import com.l.recorder.ui.IRecorderView;
 
 public class RecorderActivity extends Activity implements IRecorderView {
-    private RecordPresenter mRecordPresenter;
+    private RecorderPresenter mRecorderPresenter;
     private TextView tv;
+    private RecorderConnection conn;
 
     /**
      * Called when the activity is first created.
@@ -19,12 +26,21 @@ public class RecorderActivity extends Activity implements IRecorderView {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        if (mRecordPresenter == null) {
-            mRecordPresenter = new RecordPresenter();
-        }
-        mRecordPresenter.onViewCreate(savedInstanceState);
-        mRecordPresenter.onTakeView(this,this, 0);
         initView();
+
+        initService();
+        bind();
+    }
+
+    private void initService() {
+        Intent intent = new Intent(this, LRecorderService.class);
+        startService(intent);
+    }
+
+    private void bind() {
+        Intent intent = new Intent(this, LRecorderService.class);
+        conn = new RecorderConnection();
+        bindService(intent, conn, Context.BIND_AUTO_CREATE);
     }
 
     private void initView() {
@@ -34,19 +50,28 @@ public class RecorderActivity extends Activity implements IRecorderView {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //mRecordPresenter.onTakeView(this,null, 0);
-        mRecordPresenter.onViewDestroy();
-        if (isFinishing()) {
-            mRecordPresenter = null;
-        }
     }
 
     public void begin(View view){
-        mRecordPresenter.startRecord(this);
+        mRecorderPresenter.startRecord();
     }
 
     @Override
     public void test(String str) {
         tv.setText(str);
     }
+
+
+    private class RecorderConnection implements ServiceConnection {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mRecorderPresenter = ((LRecorderService.RecorderBinder) service).getPresenter();
+            mRecorderPresenter.onTakeView(RecorderActivity.this,0);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+        }
+    }
+
 }
