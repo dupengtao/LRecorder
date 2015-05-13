@@ -7,7 +7,7 @@ import com.l.recorder.ui.IRecorderView;
 /**
  * Created by dupengtao on 15-5-5.
  */
-public class Presenter implements IPresenter{
+public class Presenter implements IPresenter {
 
     private IRecorder mRecorder;
     private IRecorderView mRecorderView;
@@ -19,7 +19,7 @@ public class Presenter implements IPresenter{
     }
 
     public void startRecord() {
-        mRecorder.setRecordName("aaa");
+        mRecorder.setRecordFileName("aaa");
         mRecorder.startRecord();
 
 

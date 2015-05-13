@@ -46,13 +46,13 @@ public class Recorder implements IRecorder {
     }
 
     @Override
-    public void setRecordName(String name) {
-        this.fileName = name;
+    public void setAudioQulityParam(AudioQulityParam audioQulityParam) {
+        this.mAudioQulityParam = audioQulityParam;
     }
 
     @Override
-    public void setAudioQulityParam(AudioQulityParam audioQulityParam) {
-        this.mAudioQulityParam = audioQulityParam;
+    public void setRecordFileName(String name) {
+        this.fileName = name;
     }
 
     @Override

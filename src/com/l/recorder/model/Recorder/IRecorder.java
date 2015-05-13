@@ -11,12 +11,7 @@ public interface IRecorder {
      */
     void setAudioQulityParam(Recorder.AudioQulityParam audioQulityParam);
 
-    /**
-     * set record file name
-     *
-     * @param name
-     */
-    void setRecordName(String name);
+    void setRecordFileName(String name);
 
     void startRecord();
 
