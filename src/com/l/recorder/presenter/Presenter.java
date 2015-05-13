@@ -33,6 +33,8 @@ public class Presenter implements IPresenter {
     }
 
     public void stopRecord() {
+        //TODO 开启前台服务 startForeground();
+
         mRecorder.stopRecord();
 
         mRecorderView.test("success");

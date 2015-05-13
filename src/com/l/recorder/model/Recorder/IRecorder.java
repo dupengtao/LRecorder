@@ -1,5 +1,8 @@
 package com.l.recorder.model.Recorder;
 
+
+import android.os.Handler;
+
 /**
  * Created by zhangjiahao on 15-5-12.
  */
@@ -18,4 +21,6 @@ public interface IRecorder {
     void pauseRecord();
 
     void stopRecord();
+
+    void getHandler(Handler handler);
 }
