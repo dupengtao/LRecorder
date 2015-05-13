@@ -9,7 +9,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="begin"
-            android:onClick="begin"
+            android:id="@+id/btn_begin"
             />
     <TextView
             android:id="@+id/tv"
