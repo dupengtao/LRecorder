@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import com.l.recorder.presenter.Presenter;
+import com.l.recorder.ui.activity.IRecorderView;
 import com.l.recorder.utils.log.LogUtil;
 
 /**

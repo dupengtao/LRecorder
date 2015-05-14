@@ -1,7 +1,6 @@
 package com.l.recorder.model.Player;
 
 import android.media.MediaPlayer;
-import android.os.Handler;
 import com.l.recorder.utils.log.LogUtil;
 
 import java.io.IOException;
@@ -9,18 +8,19 @@ import java.io.IOException;
 /**
  * Created by zhangjiahao on 15-5-12.
  */
-public class Player implements IPlayer, MediaPlayer.OnCompletionListener {
+public class Player implements IPlayer, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
 
-    private static final String LOG_TAG = "Player";
-    private static final int IDLE = 0;
-    private static final int PLAYING = 1;
-    private static final int PAUSE = 2;
+    public static final int IDLE = 0;
+    public static final int PLAYING = 1;
+    public static final int PAUSE = 2;
+
     private int currentState = IDLE;
-
+    private static final String LOG_TAG = "Player";
     private MediaPlayer mPlayer;
     private static Player mInstance;
-    private String mFileName;
-    private Handler mHandler;
+
+    private Player() {
+    }
 
     public static Player getInstance() {
         if (mInstance == null) {
@@ -33,30 +33,27 @@ public class Player implements IPlayer, MediaPlayer.OnCompletionListener {
         return mInstance;
     }
 
-    private Player() {
-    }
-
     @Override
-    public void startPlay(String path) {
-        if (!mFileName.equals(path)) {
-            init();
-        } else if (currentState == PLAYING) {
-            return;
+    public int start(String path) {
+        if (currentState == PLAYING) {
+            return currentState;
         }
-        currentState = PLAYING;
+        if (currentState == IDLE) {
+            init(path);
+        }
+
         mPlayer.start();
+        currentState = PLAYING;
+        return currentState;
     }
 
-    private void init() {
-        if (mPlayer == null) {
-            mPlayer = new MediaPlayer();
-            mPlayer.setOnCompletionListener(this);
-        } else {
-            mPlayer.reset();
-        }
+    private void init(String path) {
+        mPlayer = new MediaPlayer();
+        mPlayer.setOnCompletionListener(this);
+        mPlayer.setOnErrorListener(this);
 
         try {
-            mPlayer.setDataSource(mFileName);
+            mPlayer.setDataSource(path);
             mPlayer.prepare();
         } catch (IOException e) {
             LogUtil.e(LOG_TAG, "prepare() failed");
@@ -64,33 +61,35 @@ public class Player implements IPlayer, MediaPlayer.OnCompletionListener {
     }
 
     @Override
-    public void pausePlay() {
+    public int pause() {
         if (currentState == PLAYING) {
             mPlayer.pause();
             currentState = PAUSE;
         }
+        return currentState;
     }
 
     @Override
-    public void stopPlay() {
+    public int stop() {
         if (currentState == PLAYING || currentState == PAUSE) {
             release();
+            currentState = IDLE;
         }
+        return currentState;
     }
 
     private void release() {
-        mPlayer.stop();
-        mPlayer.release();
-        mPlayer = null;
-        mFileName = System.currentTimeMillis() + "";
-        currentState = IDLE;
+        if (mPlayer != null) {
+            mPlayer.stop();
+            mPlayer.release();
+            mPlayer = null;
+        }
     }
 
     @Override
-    public void seekTo(float percent) {
+    public void seekTo(int msec) {
         if (currentState != IDLE) {
-            int position = (int) (mPlayer.getDuration() * percent);
-            mPlayer.seekTo(position);
+            mPlayer.seekTo(msec);
         }
     }
 
@@ -104,14 +103,17 @@ public class Player implements IPlayer, MediaPlayer.OnCompletionListener {
 
     @Override
     public void onCompletion(MediaPlayer mp) {
+        LogUtil.e(LOG_TAG, "onCompletion run");
         if (currentState == PLAYING) {
             release();
+            currentState = IDLE;
         }
     }
 
     @Override
-    public void getHandler(Handler handler) {
-        this.mHandler = handler;
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        LogUtil.e(LOG_TAG, "what = " + what + ",extra = " + extra);
+        return false;
     }
 
 }

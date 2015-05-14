@@ -1,16 +1,12 @@
 package com.l.recorder.model.Recorder;
 
 import android.media.MediaRecorder;
-import android.os.Handler;
-import android.os.Message;
-import android.os.SystemClock;
+import com.l.recorder.model.dao.FileManager;
 import com.l.recorder.utils.log.LogUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Created by zhangjiahao on 15-5-6.
@@ -19,15 +15,10 @@ public class Recorder implements IRecorder {
 
     private static final String LOG_TAG = "Recorder";
 
-    /**
-     * handler what
-     */
-    public static final int RECORDING_TIME = 10;
-
-    private static final int IDLE = 0;
-    private static final int RECORDING = 1;
-    private static final int PAUSE = 2;
-    private int currentState = IDLE;
+    public static final int IDLE = 0;
+    public static final int RECORDING = 1;
+    public static final int PAUSE = 2;
+    public int currentState = IDLE;
 
     private MediaRecorder mRecorder;
     private FileManager fileManager;
@@ -35,11 +26,6 @@ public class Recorder implements IRecorder {
     private ArrayList<File> mTempList;
     private int mTempCount = 1;
     private String fileName = System.currentTimeMillis() + "";
-
-    private Handler mHandler;
-    private long startRecordTime;
-    private Timer mTimer;
-    private CountTimerTask mTimerTask;
 
     private static Recorder mInstence;
 
@@ -71,11 +57,10 @@ public class Recorder implements IRecorder {
     }
 
     @Override
-    public void startRecord() {
+    public int start() {
         if (currentState == RECORDING) {
-            return;
+            return currentState;
         }
-        currentState = RECORDING;
 
         File tempFile = fileManager.getTempFile(mTempCount + "");
         mTempList.add(tempFile);
@@ -86,8 +71,10 @@ public class Recorder implements IRecorder {
         } catch (IOException e) {
             LogUtil.e(LOG_TAG, "prepare() failed");
         }
-        startCountTime();
+
         mRecorder.start();
+        currentState = RECORDING;
+        return currentState;
     }
 
     private void init(File tempFile) {
@@ -105,54 +92,35 @@ public class Recorder implements IRecorder {
     }
 
     @Override
-    public void pauseRecord() {
+    public int pause() {
         if (currentState == IDLE || currentState == PAUSE) {
-            return;
+            return currentState;
         }
-        currentState = PAUSE;
-        pauseCountTime();
         mRecorder.stop();
         mRecorder.release();
         mTempCount++;
+        currentState = PAUSE;
+        return currentState;
     }
 
     @Override
-    public void stopRecord() {
+    public int stop() {
+        if (currentState == IDLE) {
+            return currentState;
+        }
+
         if (currentState == RECORDING) {
             mRecorder.stop();
             mRecorder.release();
             mRecorder = null;
         }
-        stopCountTime();
-        currentState = IDLE;
+
         mTempCount = 1;
         fileManager.merginTempFile(fileName, mTempList);
         fileManager.clearTempDir();
         mTempList.clear();
-    }
-
-    @Override
-    public void getHandler(Handler handler) {
-        this.mHandler = handler;
-    }
-
-    private void startCountTime() {
-        if (currentState == IDLE) {
-            startRecordTime = SystemClock.uptimeMillis();
-        }
-        mTimer = new Timer();
-        mTimerTask = new CountTimerTask();
-        mTimer.schedule(mTimerTask, 0, 1000);
-    }
-
-    private void pauseCountTime() {
-        mTimer.cancel();
-    }
-
-    private void stopCountTime() {
-        mTimer.cancel();
-        mTimer = null;
-        mTimerTask = null;
+        currentState = IDLE;
+        return currentState;
     }
 
     public static class AudioQulityParam {
@@ -174,19 +142,4 @@ public class Recorder implements IRecorder {
         }
     }
 
-    class CountTimerTask extends TimerTask {
-        @Override
-        public void run() {
-            long recordingDuring = SystemClock.uptimeMillis() - startRecordTime;
-            Message message = Message.obtain();
-            message.obj = recordingDuring;
-            message.what = RECORDING_TIME;
-            mHandler.sendMessage(message);
-        }
-
-        @Override
-        public boolean cancel() {
-            return super.cancel();
-        }
-    }
 }

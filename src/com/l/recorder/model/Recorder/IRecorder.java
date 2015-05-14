@@ -1,26 +1,19 @@
 package com.l.recorder.model.Recorder;
 
 
-import android.os.Handler;
-
 /**
  * Created by zhangjiahao on 15-5-12.
  */
 public interface IRecorder {
-    /**
-     * set audio qulity
-     *
-     * @param audioQulityParam
-     */
+
     void setAudioQulityParam(Recorder.AudioQulityParam audioQulityParam);
 
     void setRecordFileName(String name);
 
-    void startRecord();
+    int start();
 
-    void pauseRecord();
+    int pause();
 
-    void stopRecord();
+    int stop();
 
-    void getHandler(Handler handler);
 }

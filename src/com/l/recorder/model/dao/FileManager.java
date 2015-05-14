@@ -1,7 +1,4 @@
-package com.l.recorder.model.Recorder;
-
-
-import com.l.recorder.model.Constant;
+package com.l.recorder.model.dao;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -59,7 +56,7 @@ public class FileManager {
                 bis = new BufferedInputStream(new FileInputStream(mTempList.get(i)));
                 boolean first = true;
 //                byte[] buff = new byte[bis.available()];
-                byte[] buff = new byte[1024 * 1024];
+                byte[] buff = new byte[1024 * 1024 * 10];
                 int len;
                 if (i == 0) {
                     while ((len = bis.read(buff)) != -1) {
@@ -68,21 +65,21 @@ public class FileManager {
                 } else {
                     while ((len = bis.read(buff)) != -1) {
                         if (first) {
-                            bos.write(buff, offset, len);
+                            bos.write(buff, offset, len - offset);
                             first = false;
                         } else {
                             bos.write(buff, 0, len);
                         }
+                        bos.flush();
                     }
                 }
-                File remove = mTempList.remove(i);
-                remove.delete();
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            clearTempDir();
             if (bis != null) {
                 try {
                     bis.close();

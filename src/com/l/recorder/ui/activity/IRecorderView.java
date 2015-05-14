@@ -1,4 +1,4 @@
-package com.l.recorder.ui;
+package com.l.recorder.ui.activity;
 
 /**
  * Created by dupengtao on 15-5-5.
