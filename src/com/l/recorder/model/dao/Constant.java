@@ -1,4 +1,4 @@
-package com.l.recorder.model;
+package com.l.recorder.model.dao;
 
 import android.os.Environment;
 

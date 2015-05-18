@@ -1,17 +1,20 @@
-package com.l.recorder.ui;
+package com.l.recorder.ui.activity;
 
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import com.l.recorder.R;
+import com.l.recorder.model.dao.RecordDB;
 import com.l.recorder.presenter.Presenter;
+import com.l.recorder.ui.LRecorderService;
 
 public class RecorderActivity extends Activity implements IRecorderView, View.OnClickListener {
     private Intent mService;
@@ -71,6 +74,16 @@ public class RecorderActivity extends Activity implements IRecorderView, View.On
     @Override
     public void test(String str) {
         tv.setText(str);
+    }
+
+    @Override
+    public void onRecordTimeChanged(long msec) {
+
+    }
+
+    @Override
+    public void onRecordStateChanged(int state) {
+
     }
 
     @Override

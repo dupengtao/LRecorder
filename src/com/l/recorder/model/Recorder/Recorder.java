@@ -1,6 +1,7 @@
 package com.l.recorder.model.Recorder;
 
 import android.media.MediaRecorder;
+import com.l.recorder.model.dao.FileManager;
 import com.l.recorder.utils.log.LogUtil;
 
 import java.io.File;
@@ -14,28 +15,21 @@ public class Recorder implements IRecorder {
 
     private static final String LOG_TAG = "Recorder";
 
-    private static final int IDLE = 0;
-    private static final int RECORDING = 1;
-    private static final int PAUSE = 2;
-    private int currentState = IDLE;
+    public static final int IDLE = 0;
+    public static final int RECORDING = 1;
+    public static final int PAUSE = 2;
+    public int currentState = IDLE;
 
     private MediaRecorder mRecorder;
     private FileManager fileManager;
     private AudioQulityParam mAudioQulityParam;
     private ArrayList<File> mTempList;
     private int mTempCount = 1;
-    public String fileName = System.currentTimeMillis() + "";
+    private String fileName = System.currentTimeMillis() + "";
 
-    private static Recorder mInstence;
+    private static Recorder mInstence = new Recorder();
 
     public static Recorder getInstence() {
-        if (mInstence == null) {
-            synchronized (Recorder.class) {
-                if (mInstence == null) {
-                    mInstence = new Recorder();
-                }
-            }
-        }
         return mInstence;
     }
 
@@ -46,23 +40,22 @@ public class Recorder implements IRecorder {
     }
 
     @Override
-    public void setRecordName(String name) {
-        this.fileName = name;
-    }
-
-    @Override
     public void setAudioQulityParam(AudioQulityParam audioQulityParam) {
         this.mAudioQulityParam = audioQulityParam;
     }
 
     @Override
-    public void startRecord() {
-        if (currentState == RECORDING) {
-            return;
-        }
-        currentState = RECORDING;
+    public void setRecordFileName(String name) {
+        this.fileName = name;
+    }
 
-        File tempFile = fileManager.getTempFile(mTempCount + "");
+    @Override
+    public int start() {
+        if (currentState == RECORDING) {
+            return currentState;
+        }
+
+        File tempFile = fileManager.getTempFile(mTempCount + ".temp");
         mTempList.add(tempFile);
 
         init(tempFile);
@@ -71,7 +64,10 @@ public class Recorder implements IRecorder {
         } catch (IOException e) {
             LogUtil.e(LOG_TAG, "prepare() failed");
         }
+
         mRecorder.start();
+        currentState = RECORDING;
+        return currentState;
     }
 
     private void init(File tempFile) {
@@ -89,28 +85,35 @@ public class Recorder implements IRecorder {
     }
 
     @Override
-    public void pauseRecord() {
+    public int pause() {
         if (currentState == IDLE || currentState == PAUSE) {
-            return;
+            return currentState;
         }
-        currentState = PAUSE;
         mRecorder.stop();
         mRecorder.release();
         mTempCount++;
+        currentState = PAUSE;
+        return currentState;
     }
 
     @Override
-    public void stopRecord() {
+    public int stop() {
+        if (currentState == IDLE) {
+            return currentState;
+        }
+
         if (currentState == RECORDING) {
             mRecorder.stop();
             mRecorder.release();
             mRecorder = null;
         }
-        currentState = IDLE;
+
         mTempCount = 1;
-        fileManager.merginTempFile(fileName, mTempList);
+        fileManager.merginTempFile(fileName, mTempList, 6);
         fileManager.clearTempDir();
         mTempList.clear();
+        currentState = IDLE;
+        return currentState;
     }
 
     public static class AudioQulityParam {
@@ -131,4 +134,5 @@ public class Recorder implements IRecorder {
             AudioEncoder = arr[4];
         }
     }
+
 }

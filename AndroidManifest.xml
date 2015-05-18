@@ -11,7 +11,7 @@
             android:icon="@drawable/ic_launcher"
             >
         <activity
-                android:name=".ui.RecorderActivity"
+                android:name=".ui.activity.RecorderActivity"
                 android:label="@string/app_name"
                 >
             <intent-filter>

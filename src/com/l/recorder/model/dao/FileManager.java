@@ -1,7 +1,4 @@
-package com.l.recorder.model.Recorder;
-
-
-import com.l.recorder.model.Constant;
+package com.l.recorder.model.dao;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -21,7 +18,7 @@ public class FileManager {
     }
 
     public File getTempFile(String name) {
-        File file = new File(getTempDir(), name + ".amr");
+        File file = new File(getTempDir(), name);
         if (file.exists()) {
             if (file.delete())
                 try {
@@ -47,9 +44,11 @@ public class FileManager {
         return dir;
     }
 
-    public void merginTempFile(String fileName, ArrayList<File> mTempList) {
-        int offset = 6;
-        File file = new File(Constant.RECORDER_PATH, fileName + ".amr");
+    public void merginTempFile(String fileName, ArrayList<File> mTempList, int offset) {
+        if (offset != 6 || offset != 9) {
+            offset = 6;
+        }
+        File file = new File(Constant.RECORDER_PATH, fileName);
 
         BufferedOutputStream bos = null;
         BufferedInputStream bis = null;
@@ -59,7 +58,7 @@ public class FileManager {
                 bis = new BufferedInputStream(new FileInputStream(mTempList.get(i)));
                 boolean first = true;
 //                byte[] buff = new byte[bis.available()];
-                byte[] buff = new byte[1024 * 1024];
+                byte[] buff = new byte[1024 * 1024 * 10];
                 int len;
                 if (i == 0) {
                     while ((len = bis.read(buff)) != -1) {
@@ -68,21 +67,21 @@ public class FileManager {
                 } else {
                     while ((len = bis.read(buff)) != -1) {
                         if (first) {
-                            bos.write(buff, offset, len);
+                            bos.write(buff, offset, len - offset);
                             first = false;
                         } else {
                             bos.write(buff, 0, len);
                         }
+                        bos.flush();
                     }
                 }
-                File remove = mTempList.remove(i);
-                remove.delete();
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            clearTempDir();
             if (bis != null) {
                 try {
                     bis.close();
