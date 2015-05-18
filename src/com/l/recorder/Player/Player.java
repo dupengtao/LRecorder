@@ -1,6 +1,7 @@
-package com.l.recorder.model.Player;
+package com.l.recorder.Player;
 
 import android.media.MediaPlayer;
+import android.os.CountDownTimer;
 import com.l.recorder.utils.log.LogUtil;
 
 import java.io.IOException;
@@ -17,19 +18,12 @@ public class Player implements IPlayer, MediaPlayer.OnCompletionListener, MediaP
     private int currentState = IDLE;
     private static final String LOG_TAG = "Player";
     private MediaPlayer mPlayer;
-    private static Player mInstance;
+    private static Player mInstance = new Player();
 
     private Player() {
     }
 
     public static Player getInstance() {
-        if (mInstance == null) {
-            synchronized (Player.class) {
-                if (mInstance == null) {
-                    mInstance = new Player();
-                }
-            }
-        }
         return mInstance;
     }
 
@@ -116,4 +110,28 @@ public class Player implements IPlayer, MediaPlayer.OnCompletionListener, MediaP
         return false;
     }
 
+    private CountDownTimer changeProgressTimer;
+
+    private void makeCountdownTimerChangeProgress() {
+        if (mPlayer != null) {
+
+            int countDownInterval = 50;
+
+            if (mPlayer.getDuration() > 3 * 60 * 1000) {
+                countDownInterval = 200;
+            }
+
+            changeProgressTimer = new CountDownTimer(Integer.MAX_VALUE, countDownInterval) {
+
+                @Override
+                public void onTick(long millisUntilFinished) {
+                }
+
+                @Override
+                public void onFinish() {
+                }
+            };
+            changeProgressTimer.start();
+        }
+    }
 }

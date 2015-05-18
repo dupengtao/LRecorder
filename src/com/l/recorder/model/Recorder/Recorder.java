@@ -27,16 +27,9 @@ public class Recorder implements IRecorder {
     private int mTempCount = 1;
     private String fileName = System.currentTimeMillis() + "";
 
-    private static Recorder mInstence;
+    private static Recorder mInstence = new Recorder();
 
     public static Recorder getInstence() {
-        if (mInstence == null) {
-            synchronized (Recorder.class) {
-                if (mInstence == null) {
-                    mInstence = new Recorder();
-                }
-            }
-        }
         return mInstence;
     }
 
@@ -62,7 +55,7 @@ public class Recorder implements IRecorder {
             return currentState;
         }
 
-        File tempFile = fileManager.getTempFile(mTempCount + "");
+        File tempFile = fileManager.getTempFile(mTempCount + ".temp");
         mTempList.add(tempFile);
 
         init(tempFile);
@@ -116,7 +109,7 @@ public class Recorder implements IRecorder {
         }
 
         mTempCount = 1;
-        fileManager.merginTempFile(fileName, mTempList);
+        fileManager.merginTempFile(fileName, mTempList, 6);
         fileManager.clearTempDir();
         mTempList.clear();
         currentState = IDLE;

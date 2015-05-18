@@ -18,7 +18,7 @@ public class FileManager {
     }
 
     public File getTempFile(String name) {
-        File file = new File(getTempDir(), name + ".amr");
+        File file = new File(getTempDir(), name);
         if (file.exists()) {
             if (file.delete())
                 try {
@@ -44,9 +44,11 @@ public class FileManager {
         return dir;
     }
 
-    public void merginTempFile(String fileName, ArrayList<File> mTempList) {
-        int offset = 6;
-        File file = new File(Constant.RECORDER_PATH, fileName + ".amr");
+    public void merginTempFile(String fileName, ArrayList<File> mTempList, int offset) {
+        if (offset != 6 || offset != 9) {
+            offset = 6;
+        }
+        File file = new File(Constant.RECORDER_PATH, fileName);
 
         BufferedOutputStream bos = null;
         BufferedInputStream bis = null;

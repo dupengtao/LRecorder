@@ -77,6 +77,16 @@ public class RecorderActivity extends Activity implements IRecorderView, View.On
     }
 
     @Override
+    public void onRecordTimeChanged(long msec) {
+
+    }
+
+    @Override
+    public void onRecordStateChanged(int state) {
+
+    }
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_begin:

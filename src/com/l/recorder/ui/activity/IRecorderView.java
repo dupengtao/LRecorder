@@ -6,4 +6,8 @@ package com.l.recorder.ui.activity;
 public interface IRecorderView {
 
     void test(String str);
+
+    void onRecordTimeChanged(long msec);
+
+    void onRecordStateChanged(int state);
 }

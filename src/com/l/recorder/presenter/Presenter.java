@@ -1,7 +1,7 @@
 package com.l.recorder.presenter;
 
-import com.l.recorder.model.Player.IPlayer;
-import com.l.recorder.model.Player.Player;
+import com.l.recorder.Player.IPlayer;
+import com.l.recorder.Player.Player;
 import com.l.recorder.model.Recorder.IRecorder;
 import com.l.recorder.model.Recorder.Recorder;
 import com.l.recorder.ui.activity.IRecorderView;
@@ -41,5 +41,4 @@ public class Presenter {
     public void holdView(IRecorderView iRecorderView, int tag) {
         this.mRecorderView = iRecorderView;
     }
-
 }
