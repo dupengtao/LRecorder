@@ -1,4 +1,4 @@
-package com.l.recorder.Player;
+package com.l.recorder.model.Player;
 
 /**
  * Created by zhangjiahao on 15-5-12.

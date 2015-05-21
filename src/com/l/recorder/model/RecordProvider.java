@@ -1,4 +1,4 @@
-package com.l.recorder.model.dao;
+package com.l.recorder.model;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;

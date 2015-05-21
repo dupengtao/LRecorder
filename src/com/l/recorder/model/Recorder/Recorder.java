@@ -1,7 +1,7 @@
 package com.l.recorder.model.Recorder;
 
 import android.media.MediaRecorder;
-import com.l.recorder.model.dao.FileManager;
+import com.l.recorder.model.RecordFileManager;
 import com.l.recorder.utils.log.LogUtil;
 
 import java.io.File;
@@ -21,13 +21,14 @@ public class Recorder implements IRecorder {
     public int currentState = IDLE;
 
     private MediaRecorder mRecorder;
-    private FileManager fileManager;
+    private RecordFileManager mRecordFileManager;
     private AudioQulityParam mAudioQulityParam;
     private ArrayList<File> mTempList;
     private int mTempCount = 1;
-    private String fileName = System.currentTimeMillis() + "";
+    private String mRecordName = System.currentTimeMillis() + "";
 
     private static Recorder mInstence = new Recorder();
+    private int offset;//metadata offset
 
     public static Recorder getInstence() {
         return mInstence;
@@ -35,27 +36,32 @@ public class Recorder implements IRecorder {
 
     private Recorder() {
         this.mTempList = new ArrayList<>();
-        fileManager = new FileManager();
-        fileManager.clearTempDir();
+        mRecordFileManager = new RecordFileManager();
     }
 
     @Override
-    public void setAudioQulityParam(AudioQulityParam audioQulityParam) {
-        this.mAudioQulityParam = audioQulityParam;
+    public void setRecordName(String mRecordName) {
+        this.mRecordName = mRecordName;
     }
 
     @Override
-    public void setRecordFileName(String name) {
-        this.fileName = name;
+    public void prepare(String name, AudioQulityParam audioQulityParam, boolean platform) {
+        release();
+
+        if (audioQulityParam == null) {
+            //default audio qulity
+            mAudioQulityParam = new AudioQulityParam();
+        }
+
+        setOffsetByPlatform(platform);
+
+        String suffix = mAudioQulityParam.OutputFormat == MediaRecorder.OutputFormat.AMR_WB ? ".amr" : ".3gp";
+        this.mRecordName = name + suffix;
     }
 
     @Override
     public int start() {
-        if (currentState == RECORDING) {
-            return currentState;
-        }
-
-        File tempFile = fileManager.getTempFile(mTempCount + ".temp");
+        File tempFile = mRecordFileManager.getTempFile(mTempCount + ".temp");
         mTempList.add(tempFile);
 
         init(tempFile);
@@ -70,10 +76,19 @@ public class Recorder implements IRecorder {
         return currentState;
     }
 
-    private void init(File tempFile) {
-        if (mAudioQulityParam == null) {
-            throw new IllegalStateException("please call setAudioQulityParam() first");
+    private void setOffsetByPlatform(boolean platform) {
+        if (platform) {
+            if (mAudioQulityParam.AudioEncoder == 1) {
+                offset = 6;
+            } else {
+                offset = 9;
+            }
+        } else {
+            offset = 6;
         }
+    }
+
+    private void init(File tempFile) {
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(mAudioQulityParam.OutputFormat);
@@ -86,9 +101,6 @@ public class Recorder implements IRecorder {
 
     @Override
     public int pause() {
-        if (currentState == IDLE || currentState == PAUSE) {
-            return currentState;
-        }
         mRecorder.stop();
         mRecorder.release();
         mTempCount++;
@@ -97,42 +109,33 @@ public class Recorder implements IRecorder {
     }
 
     @Override
-    public int stop() {
-        if (currentState == IDLE) {
-            return currentState;
-        }
+    public int resume() {
+        start();
+        currentState = RECORDING;
+        return currentState;
+    }
 
+    @Override
+    public int stop() {
         if (currentState == RECORDING) {
             mRecorder.stop();
             mRecorder.release();
             mRecorder = null;
         }
-
         mTempCount = 1;
-        fileManager.merginTempFile(fileName, mTempList, 6);
-        fileManager.clearTempDir();
+        mRecordFileManager.merginTempFile(mRecordName, mTempList, offset);
+        mRecordFileManager.clearTempDir();
         mTempList.clear();
         currentState = IDLE;
         return currentState;
     }
 
-    public static class AudioQulityParam {
-        public int OutputFormat = MediaRecorder.OutputFormat.AMR_WB;
-        public int SampleRate = 32000;
-        public int EncodeBitRate = 48000;
-        public int AudioChannel = 2;
-        public int AudioEncoder = MediaRecorder.AudioEncoder.AMR_WB;
-
-        public AudioQulityParam() {
-        }
-
-        public AudioQulityParam(int[] arr) {
-            OutputFormat = arr[0];
-            SampleRate = arr[1];
-            EncodeBitRate = arr[2];
-            AudioChannel = arr[3];
-            AudioEncoder = arr[4];
-        }
+    @Override
+    public void release() {
+        mRecordName = null;
+        mAudioQulityParam = null;
+        mTempList.clear();
+        mRecordFileManager.clearTempDir();
     }
 
 }

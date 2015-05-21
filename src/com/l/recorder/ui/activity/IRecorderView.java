@@ -5,9 +5,11 @@ package com.l.recorder.ui.activity;
  */
 public interface IRecorderView {
 
-    void test(String str);
+//    void updateProgress(long msec);
 
-    void onRecordTimeChanged(long msec);
+    void updateTimer(String time);
 
-    void onRecordStateChanged(int state);
+    void updateButtonState(int state);
+
+    void updateFlag(int num);
 }

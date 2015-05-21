@@ -6,14 +6,18 @@ package com.l.recorder.model.Recorder;
  */
 public interface IRecorder {
 
-    void setAudioQulityParam(Recorder.AudioQulityParam audioQulityParam);
-
-    void setRecordFileName(String name);
+    void prepare(String name, AudioQulityParam audioQulityParam, boolean platform);
 
     int start();
 
     int pause();
 
+    int resume();
+
     int stop();
+
+    void release();
+
+    void setRecordName(String name);
 
 }

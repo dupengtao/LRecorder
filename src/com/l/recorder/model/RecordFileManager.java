@@ -1,4 +1,4 @@
-package com.l.recorder.model.dao;
+package com.l.recorder.model;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.util.ArrayList;
 /**
  * Created by zhangjiahao on 15-5-11.
  */
-public class FileManager {
+public class RecordFileManager {
 
     public void clearTempDir() {
         File dir = new File(Constant.TEMP_FILE_PATH);

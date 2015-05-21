@@ -5,15 +5,44 @@
               android:layout_height="fill_parent"
         >
 
-    <Button
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="begin"
-            android:id="@+id/btn_begin"
-            />
     <TextView
             android:id="@+id/tv"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:text="00:00.0"
+            android:textSize="30dp"
+            android:gravity="center_horizontal"/>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+        <Button
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="flag"
+                android:id="@+id/btn_flag"
+                />
+
+        <Button
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="record"
+                android:id="@+id/btn_record"/>
+
+        <Button
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="stop"
+                android:id="@+id/btn_stop"
+                />
+
+    </LinearLayout>
+
+
 </LinearLayout>
 

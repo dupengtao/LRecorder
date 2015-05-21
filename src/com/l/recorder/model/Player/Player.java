@@ -1,4 +1,4 @@
-package com.l.recorder.Player;
+package com.l.recorder.model.Player;
 
 import android.media.MediaPlayer;
 import android.os.CountDownTimer;
