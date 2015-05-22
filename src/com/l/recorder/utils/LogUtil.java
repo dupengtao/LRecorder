@@ -1,4 +1,4 @@
-package com.l.recorder.utils.log;
+package com.l.recorder.utils;
 /**
  * Created by zhangjiahao on 15-5-11.
  */

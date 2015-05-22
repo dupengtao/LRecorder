@@ -1,15 +1,15 @@
 package com.l.recorder.presenter;
 
 import android.content.Context;
-import com.l.recorder.model.Player.IPlayer;
-import com.l.recorder.model.Player.Player;
-import com.l.recorder.model.Recorder.IRecorder;
-import com.l.recorder.model.Recorder.Recorder;
+import com.l.recorder.engine.Player.IPlayer;
+import com.l.recorder.engine.Player.Player;
+import com.l.recorder.engine.Recorder.IRecorder;
+import com.l.recorder.engine.Recorder.Recorder;
+import com.l.recorder.model.Timer;
 import com.l.recorder.ui.activity.IRecorderView;
 import com.l.recorder.utils.RecordTool;
-import com.l.recorder.model.Timer;
 import com.l.recorder.utils.feature.FeatureUtil;
-import com.l.recorder.utils.log.LogUtil;
+import com.l.recorder.utils.LogUtil;
 import com.l.recorder.utils.thread.DxOptThreadPool;
 
 /**
@@ -37,6 +37,7 @@ public class Presenter implements IPresenter {
         init();
     }
 
+    @Override
     public void holdView(IRecorderView iRecorderView, int tag) {
         this.mRecorderView = iRecorderView;
         platform = FeatureUtil.hasSceneSetting((Context) iRecorderView);
@@ -49,8 +50,7 @@ public class Presenter implements IPresenter {
         currentState = RECORD_IDLE;
     }
 
-    @Override
-    public void startOrPauseRecord() {
+    public void onMainButtonClicked() {
         if (currentState == RECORD_IDLE) {
             currentState = RECORD_RECORDING;
             mRecorderView.updateButtonState(currentState);
@@ -86,8 +86,7 @@ public class Presenter implements IPresenter {
         return "新录音max";
     }
 
-    @Override
-    public void stopRecord() {
+    public void onRightButtonClicked() {
         if (currentState == RECORD_PAUSE || currentState == RECORD_RECORDING) {
             currentState = RECORD_IDLE;
             mRecorderView.updateButtonState(currentState);
@@ -105,8 +104,7 @@ public class Presenter implements IPresenter {
         }
     }
 
-    @Override
-    public void addFlag() {
+    public void onLeftButtonClicked() {
         if (currentState == RECORD_RECORDING) {
             //add a flag,save to database.
             LogUtil.i(TAG, "add a flag...");

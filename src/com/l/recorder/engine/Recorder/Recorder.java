@@ -1,8 +1,8 @@
-package com.l.recorder.model.Recorder;
+package com.l.recorder.engine.Recorder;
 
 import android.media.MediaRecorder;
 import com.l.recorder.model.RecordFileManager;
-import com.l.recorder.utils.log.LogUtil;
+import com.l.recorder.utils.LogUtil;
 
 import java.io.File;
 import java.io.IOException;

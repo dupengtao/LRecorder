@@ -1,8 +1,8 @@
-package com.l.recorder.model.Player;
+package com.l.recorder.engine.Player;
 
 import android.media.MediaPlayer;
 import android.os.CountDownTimer;
-import com.l.recorder.utils.log.LogUtil;
+import com.l.recorder.utils.LogUtil;
 
 import java.io.IOException;
 

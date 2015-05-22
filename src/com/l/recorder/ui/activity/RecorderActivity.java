@@ -1,9 +1,6 @@
 package com.l.recorder.ui.activity;
 
-import android.app.Activity;
 import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -12,20 +9,18 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.l.recorder.R;
-import com.l.recorder.model.Recorder.Recorder;
+import com.l.recorder.engine.Recorder.Recorder;
 import com.l.recorder.presenter.Presenter;
-import com.l.recorder.ui.LRecorderService;
+import com.l.recorder.ui.service.BaseService;
+import com.l.recorder.utils.ToastUtil;
 
-public class RecorderActivity extends Activity implements IRecorderView, View.OnClickListener {
-    private Intent mService;
-    private RecorderConnection conn;
-    private LRecorderService.RecorderBinder mBinder;
-    private Presenter mPresenter;
+public class RecorderActivity extends BaseActivity implements IRecorderView, View.OnClickListener {
 
     private TextView tv;
     private Button btn_begin;
     private Button btn_stop;
     private Button btn_flag;
+    private Presenter mPresenter;
 
     /**
      * Called when the activity is first created.
@@ -36,8 +31,11 @@ public class RecorderActivity extends Activity implements IRecorderView, View.On
         setContentView(R.layout.main);
         findView();
         initView();
-        initService();
-        bind();
+    }
+
+    @Override
+    protected ServiceConnection onBind() {
+        return new RecorderConnection();
     }
 
     private void findView() {
@@ -53,33 +51,6 @@ public class RecorderActivity extends Activity implements IRecorderView, View.On
         btn_flag.setOnClickListener(this);
     }
 
-    private void initService() {
-        mService = new Intent(this, LRecorderService.class);
-        startService(mService);
-    }
-
-    private void bind() {
-        conn = new RecorderConnection();
-        bindService(mService, conn, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (conn != null && mBinder != null) {
-            unbindService(conn);
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        unbindService(conn);
-        stopService(mService);
-        mBinder = null;
-        conn = null;
-    }
-
     @Override
     public void updateTimer(String time) {
         tv.setText(time);
@@ -89,13 +60,13 @@ public class RecorderActivity extends Activity implements IRecorderView, View.On
     public void updateButtonState(int state) {
         switch (state) {
             case Recorder.IDLE:
-                Toast.makeText(this, "停止", Toast.LENGTH_SHORT).show();
+                ToastUtil.showToast(this, "停止");
                 break;
             case Recorder.PAUSE:
-                Toast.makeText(this, "暂停", Toast.LENGTH_SHORT).show();
+                ToastUtil.showToast(this, "暂停");
                 break;
             case Recorder.RECORDING:
-                Toast.makeText(this, "录音", Toast.LENGTH_SHORT).show();
+                ToastUtil.showToast(this, "录音");
                 break;
 
         }
@@ -110,25 +81,27 @@ public class RecorderActivity extends Activity implements IRecorderView, View.On
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_record:
-                mPresenter.startOrPauseRecord();
+                mPresenter.onMainButtonClicked();
                 break;
             case R.id.btn_flag:
-                mPresenter.addFlag();
+                mPresenter.onLeftButtonClicked();
                 break;
             case R.id.btn_stop:
-                mPresenter.stopRecord();
+                mPresenter.onRightButtonClicked();
                 break;
         }
     }
 
     private class RecorderConnection implements ServiceConnection {
+
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            mPresenter = ((LRecorderService.RecorderBinder) service).getPresenter(RecorderActivity.this, 0);
+            mPresenter = (Presenter) ((BaseService.RecorderBinder) service).getPresenter(RecorderActivity.this, 0);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+
         }
     }
 
